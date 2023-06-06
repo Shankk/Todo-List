@@ -48,11 +48,21 @@ body{
     gap: 1vh;
 }
 
-.sidebar-btn {
+.projects-list {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1vh;
+}
+
+.sidebar-btn , .addProject-btn{
     height: 30px;
     width: 80%;
 
-    align-self: center;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1vw;
 }
 
 .content {
@@ -63,22 +73,25 @@ body{
     padding: 2% 8%;
 }
 
-.content-btn {
+.addtask-btn {
     height: 50px;
     width: 100%;
 
     text-align: start;
     padding: 2%;
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1vh;
 }
 
 .task-list {
-    height: 100%;
     width: 100%;
 
     display: flex;
     flex-flow: column nowrap;
     gap: 1vh;
-
+    padding-bottom: 1vh;
 }
 
 .task-item {
