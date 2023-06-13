@@ -54,7 +54,7 @@ body{
     gap: 1vh;
 }
 
-.sidebar-btn , .addProject-btn{
+.sidebar-btn , .project-btn, .addProject-btn{
     height: 30px;
     width: 80%;
 
