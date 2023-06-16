@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo List</title>
 
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+
     <script defer src="main.js"></script>
 </head>
     <body>
@@ -14,40 +19,34 @@
         </div>
         <div class="main">
             <div class="sidebar">
-                <button class="sidebar-btn">
-                    <p>Inbox</p>
-                </button>
-                <button class="sidebar-btn">
-                    <p>Today</p>
-                </button>
-                <button class="sidebar-btn">
-                    <p>This Week</p>
-                </button>
+                <div class="home-list">
+                    <h3>Home</h3>
+                </div>
                 <div class="projects-list">
                     <h3>Projects</h3>
-                    <button class="project-btn">
-                        <p>Default</p>
-                    </button>   
                 </div>
-                <button class="addProject-btn">
+                <button class="newProject-btn">
                     <p>Add Project</p>
                 </button>
+                <div class="projectCreation" style="display: none;">
+                    <input class="projectTitle" type="text">
+                    <button class="addProjectBtn">Add</button>
+                    <button class="cancelProjectBtn">Cancel</button>
+                </div>
             </div>
             <div class="content">
-                <h2>Inbox</h2>
+                <h2 class="content-title">Inbox</h2>
                 <div class="task-list">
-                    <div class="task-item">
-                        <div> Drink Water</div>
-                        <input type="date">
-                    </div>
-                    <div class="task-item">
-                        <div> Eat Food</div>
-                        <input type="date">
-                    </div>
+
                 </div>
-                <button class="addtask-btn">
+                <button class="newTask-btn">
                     <p>Add Task</p>
                 </button>
+                <div class="taskCreation" style="display: none;">
+                    <input class="taskTitle" type="text">
+                    <button class="addTaskBtn">Add</button>
+                    <button class="cancelTaskBtn">Cancel</button>
+                </div>
             </div>
         </div>
         <div class="footer">

@@ -1,153 +1,101 @@
 import './styles.css';
-import Project from './project';
+import {Project, ProjectManager} from './project';
 import Task from './task';
 
-
-class Projects {
-    constructor() {
-        this.list = []
-        this.index = new Project()
-    }
-
-    getIndex() {
-        return this.index
-    }
-
-    setIndex(project) {
-        this.index = project
-    }
-
-    addProject(project) {
-        this.list.push(project)
-    }
-
-    removeProject(project) {
-        const index = this.list.indexOf(project)
-        if(index !== -1) {
-            this.list.splice(index,1)
-        }
-    }
-}
-
-const content = document.querySelector('.content')
-const sidebarBtn = document.querySelector('.addProject-btn')
+const sidebarBtn = document.querySelector('.newProject-btn')
 //Project Items List
+const homeList = document.querySelector('.home-list')
 const projectList = document.querySelector('.projects-list')
-const projects = new Projects()
-//Task Content Template
-const contentTitle = document.createElement('h2')
-const taskList = document.createElement('div')
-taskList.classList.add('task-list')
-const contentBtn = document.createElement('button')
-contentBtn.classList.add('addtask-btn')
+const projects = new ProjectManager()
+//Content Items
+const contentTitle = document.querySelector('.content-title')
+const taskList = document.querySelector('.task-list')
+const contentBtn = document.querySelector('.newTask-btn')
 // Project creation elements
-const createProjectCont = document.createElement('div')
-const projectTitle = document.createElement('input')
-const addProjectBtn = document.createElement('button')
-const cancelProjectBtn = document.createElement('button')
+const projectContainer = document.querySelector('.projectCreation')
+const projectTitle = document.querySelector('.projectTitle')
+const addProjectBtn = document.querySelector('.addProjectBtn')
+const cancelProjectBtn = document.querySelector('.cancelProjectBtn')
 // Task creation elements
-const createTaskCont = document.createElement('div')
-const taskTitle = document.createElement('input')
-const addTaskBtn = document.createElement('button')
-const cancelTaskBtn = document.createElement('button')
+const taskContainer = document.querySelector('.taskCreation')
+const taskTitle = document.querySelector('.taskTitle')
+const addTaskBtn = document.querySelector('.addTaskBtn')
+const cancelTaskBtn = document.querySelector('.cancelTaskBtn')
+
 
 function changeToNewTab(tab) {
-    content.textContent = " "
     contentTitle.textContent = tab.getName().textContent
-    contentBtn.textContent = "Add Task"
     projects.setIndex(tab)
     projects.getIndex().createTaskElements(taskList)
-
-    content.appendChild(contentTitle)
-    content.appendChild(taskList)
-    content.appendChild(contentBtn)
-    
 }
 
-function createProjectElements() {
-    sidebarBtn.style.display = "none"
-    createProjectCont.style.display = "flex"
-
-    projectTitle.type = 'text'
+function toggleElements(open,close) {
     projectTitle.value = ''
-    addProjectBtn.textContent = 'Add'
-    cancelProjectBtn.textContent = 'Cancel'
-
-    createProjectCont.appendChild(projectTitle)
-    createProjectCont.appendChild(addProjectBtn)
-    createProjectCont.appendChild(cancelProjectBtn)
-
-    projectList.appendChild(createProjectCont)
-}
-
-function closeProjectElememts() {
-    sidebarBtn.style.display = "flex"
-    createProjectCont.style.display = "none"
-}
-
-function createTaskElements() {
-    contentBtn.style.display = "none"
-    createTaskCont.style.display = "flex"
-
-    taskTitle.type = 'text'
     taskTitle.value = ''
-    addTaskBtn.textContent = 'Add'
-    cancelTaskBtn.textContent = 'Cancel'
-    
-    createTaskCont.appendChild(taskTitle)
-    createTaskCont.appendChild(addTaskBtn)
-    createTaskCont.appendChild(cancelTaskBtn)
-
-    taskList.appendChild(createTaskCont)
+    if(open.style.display == "none") {
+        open.style.display = "flex"
+        close.style.display = "none"
+    }
+    else {
+        open.style.display = "none"
+        close.style.display = "flex"
+    }
 }
 
-function closeTaskElements() {
-    contentBtn.style.display = "flex"
-    createTaskCont.style.display = "none"
-}
-
-
-function createNewProject() {
-    const newProject = new Project(projectTitle.value)
-    newProject.setParent(projectList)
+function createNewProject(title, parent, userCreated) {
+    const newProject = new Project(title)
+    newProject.setParent(parent)
     newProject.getButton().addEventListener('click', () => {
         changeToNewTab(newProject)
     })
+    if(userCreated) {
+        newProject.createDeleteButton(projects,newProject)
+    }
     projects.addProject(newProject)
-    closeProjectElememts();
+    changeToNewTab(newProject)
 }
 
-function createNewTask() {
-    const newTask = new Task(taskTitle.value);
-    newTask.setParent(taskList);
+function createNewTask(title,parent) {
+    const newTask = new Task(title);
+    newTask.setParent(parent);
     projects.getIndex().addTask(newTask);
     newTask.setProjectOwner(projects.getIndex(),newTask)
-    closeTaskElements();
 }
 
+contentBtn.addEventListener('click', () => {
+    toggleElements(taskContainer, contentBtn);
+})
 
 addTaskBtn.addEventListener('click', () => {
-    createNewTask();
+    if(taskTitle.value.length > 1){
+        createNewTask(taskTitle.value,taskList);
+        toggleElements(taskContainer, contentBtn);
+    }
 })
 
 cancelTaskBtn.addEventListener('click', () => {
-    closeTaskElements();
+    toggleElements(taskContainer, contentBtn);
 })
 
+sidebarBtn.addEventListener('click', () => {
+    toggleElements(projectContainer,sidebarBtn);
+})
 
 addProjectBtn.addEventListener('click', () => {
-    createNewProject();
+    if(projectTitle.value.length > 1) {
+        createNewProject(projectTitle.value, projectList, true);
+        toggleElements(projectContainer,sidebarBtn);
+    }
 })
 
 cancelProjectBtn.addEventListener('click', () => {
-    closeProjectElememts();
+    toggleElements(projectContainer,sidebarBtn);
 })
 
-
-sidebarBtn.addEventListener('click', () => {
-    createProjectElements();
-})
-
-contentBtn.addEventListener('click', () => {
-    createTaskElements();
-})
+//Initial Site Settings
+createNewProject("Inbox", homeList, false)
+createNewTask("Drink Water", taskList)
+createNewTask("Eat Food", taskList)
+createNewProject("Today", homeList, false)
+createNewProject("This Week", homeList, false)
+createNewProject("Default", projectList, true)

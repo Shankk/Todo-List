@@ -2,14 +2,13 @@ import Project from "./project"
 
 export default class Task {
     constructor(title,dateVal) {
-        //this.project = new Project("Default")
-
+        
         this.cont = document.createElement('div')
         this.cont.classList.add("task-item")
         
         this.complete = document.createElement('button')
-        this.complete.textContent = "Done"
-
+        this.complete.classList.add('complete-task')
+        this.complete.textContent = "Complete"
         this.name = document.createElement('div')
         this.name.textContent = title
 
@@ -34,8 +33,8 @@ export default class Task {
         return this.date.value
     }
 
-    setProjectOwner(proj,item) {
-        this.project = proj
+    setProjectOwner(parent,item) {
+        this.project = parent
         this.task = item
         this.complete.addEventListener('click', () =>{
             console.log(this.task.getTaskName())

@@ -1,23 +1,45 @@
 import Task from "./task"
+class ProjectManager {
+    constructor() {
+        this.list = []
+        this.index = ""
+    }
 
-export default class Project {
+    getIndex() {
+        return this.index
+    }
+
+    setIndex(project) {
+        this.index = project
+    }
+
+    addProject(project) {
+        this.list.push(project)
+    }
+
+    removeProject(project) {
+        const index = this.list.indexOf(project)
+        if(index !== -1) {
+            this.list.splice(index,1)
+        }
+        else {
+            console.log("Project Already Deleted or Dosent Exist.")
+        }
+    }
+}
+
+class Project {
     constructor(title) {
         this.tasks = []
 
         this.project = document.createElement('button')
-        this.project.classList.add("project-btn")
+        this.project.classList.add("sidebar-btn")
+        this.project.id = "project-btn"
         
         this.name = document.createElement('div')
         this.name.textContent = title
-
-        this.complete = document.createElement('button')
-        this.complete.textContent = " X "
-        this.complete.addEventListener('click', () =>{
-            this.project.remove()
-        })
-
+        
         this.project.appendChild(this.name)
-        this.project.appendChild(this.complete)
         
     }
 
@@ -33,6 +55,33 @@ export default class Project {
         parent.appendChild(this.project);
     }
 
+    addTask(task) {
+        this.tasks.push(task)
+    }
+
+    removeTask(task) {
+        const index = this.tasks.indexOf(task)
+        if(index !== -1) {
+            this.tasks.splice(index,1)
+        }
+        else {
+            console.log("Task Already Deleted or Dosent Exist.")
+        }
+    }
+
+    createDeleteButton(list,item) {
+        this.list = list
+        this.item = item
+        this.complete = document.createElement('button')
+        this.complete.classList.add('complete-side')
+        this.complete.textContent = " X "
+        this.complete.addEventListener('click', () =>{
+            this.list.removeProject(this.item)
+            this.project.remove()
+        })
+        this.project.appendChild(this.complete)
+    }
+
     createTaskElements(list) {
         if(this.tasks != null)
         {
@@ -45,15 +94,6 @@ export default class Project {
         }
         
     }
-
-    addTask(task) {
-        this.tasks.push(task)
-    }
-
-    removeTask(task) {
-        const index = this.tasks.indexOf(task)
-        if(index !== -1) {
-            this.tasks.splice(index,1)
-        }
-    }
 }
+
+export{Project, ProjectManager}

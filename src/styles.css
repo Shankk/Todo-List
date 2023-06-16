@@ -25,7 +25,7 @@ body{
     padding-left: 5vw;
 }
 
-.header > h1 {
+.header > h1 , .home-list > h3, .projects-list > h3{
     color: white;
 }
 
@@ -48,21 +48,24 @@ body{
     gap: 1vh;
 }
 
-.projects-list {
+.projects-list , .home-list {
     display: flex;
     flex-flow: column nowrap;
     gap: 1vh;
 }
 
-.sidebar-btn , .project-btn, .addProject-btn{
-    height: 30px;
+.sidebar-btn, .newProject-btn{
+    all: unset;
+    height: 50px;
     width: 80%;
+    background-color: #86BBD8;
+    border-radius: 16px;
 
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    padding: 1vw;
+    padding: 0% 1vw;
 }
 
 .content {
@@ -71,18 +74,6 @@ body{
 
     background-color: #86BBD8;
     padding: 2% 8%;
-}
-
-.addtask-btn {
-    height: 50px;
-    width: 100%;
-
-    text-align: start;
-    padding: 2%;
-
-    display: flex;
-    flex-flow: column nowrap;
-    gap: 1vh;
 }
 
 .task-list {
@@ -106,6 +97,105 @@ body{
     justify-content: space-between;
     align-items: center;
     padding: 2%;
+}
+
+.newTask-btn {
+    all: unset;
+    height: 40px;
+    width: 10%;
+    min-width: 100px;
+    
+    color: white;
+    background-color: #33658A;
+    border-radius: 16px;
+    display: flex;
+    text-align: start;
+    padding-top: 20px;
+    padding-left: 1vw;
+}
+
+
+.projectCreation {
+    display: none;
+    flex-flow: row wrap;
+    gap: 0.5vw;
+}
+
+.projectTitle {
+    all: unset;
+    height: 50px;
+    width: 90%;
+    min-width: 100px;
+    color: white;
+    background-color: #33658A;
+    border: solid 4px #86BBD8;
+    border-radius: 16px;
+    text-align: start;
+}
+
+.addProjectBtn, .cancelProjectBtn {
+    all: unset;
+    height: 50px;
+    width: 45%;
+    min-width: 75px;
+
+    color: black;
+    background-color: #86BBD8;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.taskCreation {
+    display: none;
+    gap: 1vw;
+}
+
+.taskTitle {
+    all: unset;
+    height: 42px;
+    width: 20%;
+    min-width: 100px;
+
+    background-color: #86BBD8;
+    border: solid 4px #33658A;
+    border-radius: 16px;
+    text-align: start;
+}
+
+.addTaskBtn, .cancelTaskBtn {
+    all: unset;
+    height: 50px;
+    width: 5%;
+    min-width: 100px;
+
+    color: white;
+    background-color: #33658A;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.complete-side {
+    all: unset;
+    height: 30px;
+    width: 5%;
+    min-width: 30px;
+
+    color: white;
+    background-color: #33658A;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.complete-task {
+    all: unset;
+    height: 50px;
+    width: 10%;
+    min-width: 100px;
+
+    color: black;
+    background-color: #86BBD8;
+    border-radius: 16px;
+    text-align: center;
 }
 
 .footer {
