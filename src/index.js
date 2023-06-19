@@ -1,3 +1,4 @@
+import { formatDistance, format, startOfToday } from 'date-fns';
 import './styles.css';
 import {Project, ProjectManager} from './project';
 import Task from './task';
@@ -6,7 +7,8 @@ const sidebarBtn = document.querySelector('.newProject-btn')
 //Project Items List
 const homeList = document.querySelector('.home-list')
 const projectList = document.querySelector('.projects-list')
-const projects = new ProjectManager()
+const defaultProjects = new ProjectManager()
+const userProjects = new ProjectManager()
 //Content Items
 const contentTitle = document.querySelector('.content-title')
 const taskList = document.querySelector('.task-list')
@@ -25,8 +27,8 @@ const cancelTaskBtn = document.querySelector('.cancelTaskBtn')
 
 function changeToNewTab(tab) {
     contentTitle.textContent = tab.getName().textContent
-    projects.setIndex(tab)
-    projects.getIndex().createTaskElements(taskList)
+    userProjects.setIndex(tab)
+    userProjects.getIndex().createTaskElements(taskList)
 }
 
 function toggleElements(open,close) {
@@ -42,24 +44,25 @@ function toggleElements(open,close) {
     }
 }
 
-function createNewProject(title, parent, userCreated) {
+function createNewProject(projectlist, title, parent, userCreated) {
     const newProject = new Project(title)
     newProject.setParent(parent)
     newProject.getButton().addEventListener('click', () => {
         changeToNewTab(newProject)
     })
     if(userCreated) {
-        newProject.createDeleteButton(projects,newProject)
+        newProject.createDeleteButton(projectlist,newProject)
     }
-    projects.addProject(newProject)
+    projectlist.addProject(newProject)
     changeToNewTab(newProject)
 }
 
 function createNewTask(title,parent) {
     const newTask = new Task(title);
     newTask.setParent(parent);
-    projects.getIndex().addTask(newTask);
-    newTask.setProjectOwner(projects.getIndex(),newTask)
+    newTask.checkDate(defaultProjects.getThisWeek(), defaultProjects.getToday(),newTask)
+    userProjects.getIndex().addTask(newTask);
+    newTask.setProjectOwner(userProjects.getIndex(),newTask)
 }
 
 contentBtn.addEventListener('click', () => {
@@ -83,7 +86,7 @@ sidebarBtn.addEventListener('click', () => {
 
 addProjectBtn.addEventListener('click', () => {
     if(projectTitle.value.length > 1) {
-        createNewProject(projectTitle.value, projectList, true);
+        createNewProject(userProjects,projectTitle.value, projectList, true);
         toggleElements(projectContainer,sidebarBtn);
     }
 })
@@ -93,9 +96,13 @@ cancelProjectBtn.addEventListener('click', () => {
 })
 
 //Initial Site Settings
-createNewProject("Inbox", homeList, false)
+createNewProject(defaultProjects,"Inbox", homeList, false)
 createNewTask("Drink Water", taskList)
 createNewTask("Eat Food", taskList)
-createNewProject("Today", homeList, false)
-createNewProject("This Week", homeList, false)
-createNewProject("Default", projectList, true)
+createNewProject(defaultProjects,"Today", homeList, false)
+createNewProject(defaultProjects,"This Week", homeList, false)
+createNewProject(userProjects,"Default", projectList, true)
+
+//const result = formatDistance(startOfToday(), new Date(2023, 5, 20))
+//const test = formatDistanceToNow(new Date(2023, 5, 12),{addSuffix: true})
+//console.log(result)

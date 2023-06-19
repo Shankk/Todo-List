@@ -5,6 +5,14 @@ class ProjectManager {
         this.index = ""
     }
 
+    getToday() {
+        return this.list[1]
+    }
+
+    getThisWeek() {
+        return this.list[2]
+    }
+
     getIndex() {
         return this.index
     }
