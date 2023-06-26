@@ -1,54 +1,53 @@
-import Task from "./task"
+
 class ProjectManager {
     constructor() {
-        this.list = []
-        this.index = ""
+        this.projectList = []
+
     }
 
-    getToday() {
-        return this.list[1]
+    getProject(projectName) {
+        return this.projectList.find((project) => project.getName() === projectName)
     }
 
-    getThisWeek() {
-        return this.list[2]
-    }
-
-    getIndex() {
-        return this.index
-    }
-
-    setIndex(project) {
-        this.index = project
-    }
-
-    addProject(project) {
-        this.list.push(project)
+    addProject(newProject) {
+        if (this.projectList.find((project) => project.name === newProject.name)) {
+            alert("Please Choose Another Name. Project Already Exists")
+        }
+        else{
+            this.projectList.push(newProject)
+            console.log("Project Added")
+        }
     }
 
     removeProject(project) {
-        const index = this.list.indexOf(project)
+        const index = this.projectList.indexOf(project)
         if(index !== -1) {
-            this.list.splice(index,1)
+            this.projectList.splice(index,1)
         }
         else {
-            console.log("Project Already Deleted or Dosent Exist.")
+            console.log("User Project Already Deleted or Dosent Exist.")
         }
     }
 }
 
 class Project {
-    constructor(title) {
+    constructor(title, projMng, tasklist) {
+        this.projectMng = projMng
+        this.taskListEle = tasklist //task list element
         this.tasks = []
+        this.name = title
 
-        this.project = document.createElement('button')
-        this.project.classList.add("sidebar-btn")
-        this.project.id = "project-btn"
+        this.button = document.createElement('button')
+        this.button.classList.add("sidebar-btn")
+        this.button.id = "project-btn"
+        this.button.addEventListener('click', () =>{
+            this.createTaskElements()
+        })
+
+        this.title = document.createElement('div')
+        this.title.textContent = this.name
         
-        this.name = document.createElement('div')
-        this.name.textContent = title
-        
-        this.project.appendChild(this.name)
-        
+        this.button.appendChild(this.title)
     }
 
     getName() {
@@ -56,15 +55,32 @@ class Project {
     }
 
     getButton() {
-        return this.project
+        return this.button
     }
 
     setParent(parent) {
-        parent.appendChild(this.project);
+        parent.appendChild(this.button);
     }
 
-    addTask(task) {
-        this.tasks.push(task)
+    getProjectMng() {
+        return this.projectMng
+    }
+
+    getTask(task) {
+        const index = this.tasks.indexOf(task)
+        if(index !== -1) {
+            return this.tasks[index]
+        }
+        else {
+            console.log("Task Already Deleted or Dosent Exist.")
+        }
+    }
+
+    addTask(newTask) {
+        if (this.tasks.find((task) => task.name === newTask.name)) {
+            alert("Please Choose Another Name. Project Already Exists")
+        }
+        this.tasks.push(newTask)
     }
 
     removeTask(task) {
@@ -77,31 +93,44 @@ class Project {
         }
     }
 
-    createDeleteButton(list,item) {
-        this.list = list
+    createDeleteButton(item) {
         this.item = item
         this.complete = document.createElement('button')
         this.complete.classList.add('complete-side')
         this.complete.textContent = " X "
-        this.complete.addEventListener('click', () =>{
-            this.list.removeProject(this.item)
-            this.project.remove()
+        this.complete.addEventListener('click', (e) =>{
+            e.stopPropagation()
+        
+            this.projectMng.getProject("Inbox").createTaskElements()
+            this.deleteTaskElements()
+            this.projectMng.removeProject(this.item)
+            this.button.remove()
         })
-        this.project.appendChild(this.complete)
+        this.button.appendChild(this.complete)
     }
 
-    createTaskElements(list) {
+    createTaskElements() {
         if(this.tasks != null)
         {
-            list.textContent = ""
+            this.taskListEle.textContent = ""
             for(let task in this.tasks){
-                // allow creation of tasks so we can populate 
-                // when switching sidebar tabs
-                list.appendChild(this.tasks[task].getContainer())
+                // allow creation of tasks so we can populate when switching sidebar tabs
+                this.taskListEle.appendChild(this.tasks[task].getContainer())
             }
         }
         
     }
+
+    deleteTaskElements() {
+        if(this.tasks != null) {
+            for(let task in this.tasks){
+                //console.log(this.tasks[task].getTaskName())
+                this.projectMng.getProject("Inbox").removeTask(this.tasks[task])
+                this.projectMng.getProject("This Week").removeTask(this.tasks[task])
+            }
+        }
+    }
+
 }
 
 export{Project, ProjectManager}

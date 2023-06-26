@@ -1,14 +1,7 @@
-import { formatDistance, format, startOfToday } from 'date-fns';
 import './styles.css';
 import {Project, ProjectManager} from './project';
 import Task from './task';
 
-const sidebarBtn = document.querySelector('.newProject-btn')
-//Project Items List
-const homeList = document.querySelector('.home-list')
-const projectList = document.querySelector('.projects-list')
-const defaultProjects = new ProjectManager()
-const userProjects = new ProjectManager()
 //Content Items
 const contentTitle = document.querySelector('.content-title')
 const taskList = document.querySelector('.task-list')
@@ -23,13 +16,11 @@ const taskContainer = document.querySelector('.taskCreation')
 const taskTitle = document.querySelector('.taskTitle')
 const addTaskBtn = document.querySelector('.addTaskBtn')
 const cancelTaskBtn = document.querySelector('.cancelTaskBtn')
-
-
-function changeToNewTab(tab) {
-    contentTitle.textContent = tab.getName().textContent
-    userProjects.setIndex(tab)
-    userProjects.getIndex().createTaskElements(taskList)
-}
+//Project Items List
+const homeList = document.querySelector('.home-list')
+const projectList = document.querySelector('.projects-list')
+const sidebarBtn = document.querySelector('.newProject-btn')
+const projectMng = new ProjectManager()
 
 function toggleElements(open,close) {
     projectTitle.value = ''
@@ -44,25 +35,25 @@ function toggleElements(open,close) {
     }
 }
 
-function createNewProject(projectlist, title, parent, userCreated) {
-    const newProject = new Project(title)
+function createNewProject(title, parent, userCreated) {
+    const newProject = new Project(title, projectMng, taskList)
     newProject.setParent(parent)
-    newProject.getButton().addEventListener('click', () => {
-        changeToNewTab(newProject)
+    newProject.getButton().addEventListener('click', () =>{
+        contentTitle.textContent = newProject.getName()
     })
+
     if(userCreated) {
-        newProject.createDeleteButton(projectlist,newProject)
+        newProject.createDeleteButton(newProject)
     }
-    projectlist.addProject(newProject)
-    changeToNewTab(newProject)
+    projectMng.addProject(newProject)
 }
 
 function createNewTask(title,parent) {
-    const newTask = new Task(title);
+    const newTask = new Task(title, projectMng.getProject(contentTitle.textContent));
     newTask.setParent(parent);
-    newTask.checkDate(defaultProjects.getThisWeek(), defaultProjects.getToday(),newTask)
-    userProjects.getIndex().addTask(newTask);
-    newTask.setProjectOwner(userProjects.getIndex(),newTask)
+    newTask.checkDate(newTask)
+    projectMng.getProject(contentTitle.textContent).addTask(newTask)
+    newTask.setDeleteButton(newTask)
 }
 
 contentBtn.addEventListener('click', () => {
@@ -86,7 +77,7 @@ sidebarBtn.addEventListener('click', () => {
 
 addProjectBtn.addEventListener('click', () => {
     if(projectTitle.value.length > 1) {
-        createNewProject(userProjects,projectTitle.value, projectList, true);
+        createNewProject(projectTitle.value, projectList, true);
         toggleElements(projectContainer,sidebarBtn);
     }
 })
@@ -96,13 +87,16 @@ cancelProjectBtn.addEventListener('click', () => {
 })
 
 //Initial Site Settings
-createNewProject(defaultProjects,"Inbox", homeList, false)
-createNewTask("Drink Water", taskList)
-createNewTask("Eat Food", taskList)
-createNewProject(defaultProjects,"Today", homeList, false)
-createNewProject(defaultProjects,"This Week", homeList, false)
-createNewProject(userProjects,"Default", projectList, true)
+createNewProject("Inbox", homeList, false)
+createNewProject("Today", homeList, false)
+createNewProject("This Week", homeList, false)
+createNewProject("Default", projectList, true)
 
-//const result = formatDistance(startOfToday(), new Date(2023, 5, 20))
-//const test = formatDistanceToNow(new Date(2023, 5, 12),{addSuffix: true})
-//console.log(result)
+if(projectMng.getProject(contentTitle.textContent)) {
+    console.log("Success!")
+}
+else {
+    console.log("Failed!")
+}
+
+localStorage.setItem("todolist", JSON.stringify(new ProjectManager()))
