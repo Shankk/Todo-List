@@ -22,7 +22,9 @@ const cancelTaskBtn = document.querySelector('.cancelTaskBtn')
 const homeList = document.querySelector('.home-list')
 const projectList = document.querySelector('.projects-list')
 const sidebarBtn = document.querySelector('.newProject-btn')
-const manager = new ProjectManager()
+
+const storageM = new Storage()
+const manager = storageM.getProjectList()
 
 function makeDate(year,month,day) {
     const yyyy = String(year)
@@ -35,6 +37,131 @@ function makeDate(year,month,day) {
 function getTodaysDate() {
     const todaysDate = startOfToday()
     return this.makeDate(getYear(todaysDate), getMonth(todaysDate), getDate(todaysDate))
+}
+
+function createTaskElements(project,task) {
+    // allow creation of tasks so we can populate when switching sidebar tabs
+    const cont = document.createElement('div')
+    cont.classList.add("task-item")
+
+    const complete = document.createElement('button')
+    complete.classList.add('complete-task')
+    complete.textContent = "Complete"
+    complete.addEventListener('click', () =>{
+        manager.getProject(task.getProjectName()).removeTask(task)
+        manager.getProject("Today").removeTask(task)
+        manager.getProject("This Week").removeTask(task)
+        storageM.saveProjectList(manager)
+        cont.remove()
+    })
+
+    const name = document.createElement('div')
+    name.textContent =  task.getName()
+
+    const date = document.createElement('input')
+    date.type = 'date'
+    date.value = task.getDate()
+    date.addEventListener("change", () =>{
+        task.setDate(date.value)
+        console.log(task.getDate())
+        if(compareAsc(task.getCurrentDate(), startOfToday()) == 0){
+            manager.getProject("Today").addTask(task)
+        }
+        else {
+            console.log("Deleteing/Not Today Task")
+            manager.getProject("Today").removeTask(task)
+        }
+        // add to This week if date matches Today's week
+        if(compareAsc(task.getCurrentDate(), addWeeks(startOfToday(),1)) == -1 &&
+        compareAsc(task.getCurrentDate(), startOfToday()) == 1) {
+            manager.getProject("This Week").addTask(task)
+        }
+        else{
+            console.log("Deleteing/Not This Week Task")
+            manager.getProject("This Week").removeTask(task)
+        }
+
+        storageM.saveProjectList(manager)
+    })
+
+    cont.appendChild(complete)
+    cont.appendChild(name)
+    cont.appendChild(date)
+    taskList.appendChild(cont)
+
+    if(compareAsc(task.getCurrentDate(), startOfToday()) == 0){
+        manager.getProject("Today").addTask(task) 
+    }
+    else {
+        console.log("Deleteing/Not Today Task")
+        manager.getProject("Today").removeTask(task)
+    }
+    // add to This week if date matches Today's week
+    if(compareAsc(task.getCurrentDate(), addWeeks(startOfToday(),1)) == -1 &&
+    compareAsc(task.getCurrentDate(), startOfToday()) == 1) {
+        manager.getProject("This Week").addTask(task)
+    }
+    else{
+        console.log("Deleteing/Not This Week Task")
+        manager.getProject("This Week").removeTask(task)
+    }
+}
+
+function createTasks(project) {
+    if(project.getTasks() != null) {
+        taskList.textContent = ""
+        for(let task in project.getTasks()){
+            createTaskElements(project, project.getTasks()[task])
+        }
+    }
+}
+
+function createProjectElements(project, parent) {
+    const button = document.createElement('button')
+    button.classList.add("sidebar-btn")
+    button.id = "project-btn"
+    button.addEventListener('click', () =>{
+        contentTitle.textContent = project.getName()
+        createTasks(project)
+    })
+
+    const title = document.createElement('div')
+    title.textContent = project.getName()
+    
+    button.appendChild(title)
+    parent.appendChild(button)
+
+    if(parent.classList == "projects-list") {
+        const complete = document.createElement('button')
+        complete.classList.add('complete-side')
+        complete.textContent = " X "
+        complete.addEventListener('click', (e) =>{
+            e.stopPropagation()
+            contentTitle.textContent = "Inbox"
+            createTasks(manager.getProject("Inbox"))
+            project.deleteTaskElements(manager)
+            manager.removeProject(project)
+            storageM.saveProjectList(manager)
+            console.log(manager)
+            button.remove()
+        })
+        button.appendChild(complete)
+    }
+}
+
+function createTodoList() {
+    if(storageM != null) {
+        for(let project in manager.getProjects()) {
+            if(manager.getProjects()[project].getName() === "Inbox" || 
+            manager.getProjects()[project].getName() === "Today" || 
+            manager.getProjects()[project].getName() === "This Week") {
+                createProjectElements(manager.getProjects()[project], homeList)
+            }
+            else {
+                createProjectElements(manager.getProjects()[project], projectList)
+            }
+        }
+    }
 }
 
 function toggleElements(open,close) {
@@ -50,100 +177,21 @@ function toggleElements(open,close) {
     }
 }
 
-function createNewProject(name, parent, userCreated) {
-    const newProject = new Project(name, taskList)
-
-    const button = document.createElement('button')
-    button.classList.add("sidebar-btn")
-    button.id = "project-btn"
-    button.addEventListener('click', () =>{
-        contentTitle.textContent = newProject.getName()
-        newProject.createTaskElements()
-    })
-
-    const title = document.createElement('div')
-    title.textContent = newProject.getName()
+function createNewProject(name) {
+    const newProject = new Project(name)
     
-    button.appendChild(title)
-    parent.appendChild(button)
-
-    if(userCreated) {
-        const complete = document.createElement('button')
-        complete.classList.add('complete-side')
-        complete.textContent = " X "
-        complete.addEventListener('click', (e) =>{
-            e.stopPropagation()
-            contentTitle.textContent = "Inbox"
-            manager.getProject("Inbox").createTaskElements()
-            newProject.deleteTaskElements(manager)
-            manager.removeProject(newProject)
-            button.remove()
-        })
-        button.appendChild(complete)
-    }
-
+    createProjectElements(newProject, projectList)
+    
     manager.addProject(newProject)
+    storageM.addProject(newProject)
 }
 
-function createNewTask(title,parent) {
-    const newTask = new Task(title, manager.getProject(contentTitle.textContent));
+function createNewTask(title) {
+    const newTask = new Task(title, contentTitle.textContent);
     
-    const cont = document.createElement('div')
-    cont.classList.add("task-item")
-    newTask.setContainer(cont)
-    const complete = document.createElement('button')
-    complete.classList.add('complete-task')
-    complete.textContent = "Complete"
-    complete.addEventListener('click', () =>{
-        //console.log(this.task.getName())
-        manager.getProject(contentTitle.textContent).removeTask(newTask)
-        cont.remove()
-    })
-
-    const name = document.createElement('div')
-    name.textContent = title
-
-    const date = document.createElement('input')
-    date.type = 'date'
-
-    cont.appendChild(complete)
-    cont.appendChild(name)
-    cont.appendChild(date)
-    parent.appendChild(cont)
-
-    //newTask.addDateCheck(newTask, manager)
-    date.addEventListener("change", () =>{
-        newTask.setDate(date)
-        //add to Today project if date matches today
-        if(compareAsc(newTask.getCurrentDate(), startOfToday()) == 0){
-            manager.getProject("Today").addTask(newTask)
-            complete.addEventListener('click', () =>{
-                manager.getProject("Today").removeTask(newTask)
-            })
-            
-        }
-        else {
-            console.log("Deleteing/Not Today Task")
-            manager.getProject("Today").removeTask(newTask)
-        }
-        // add to This week if date matches Today's week
-        if(compareAsc(newTask.getCurrentDate(), addWeeks(startOfToday(),1)) == -1 &&
-        compareAsc(newTask.getCurrentDate(), startOfToday()) == 1) {
-            manager.getProject("This Week").addTask(newTask)
-            complete.addEventListener('click', () =>{
-                manager.getProject("This Week").removeTask(newTask)
-            })
-        }
-        else{
-            console.log("Deleteing/Not This Week Task")
-            manager.getProject("This Week").removeTask(newTask)
-        }
-        
-    })
-
-
+    createTaskElements(manager.getProject(contentTitle.textContent), newTask)
     manager.getProject(contentTitle.textContent).addTask(newTask)
-    //newTask.setDeleteButton(newTask)
+    storageM.addTask(contentTitle.textContent, newTask)
 }
 
 contentBtn.addEventListener('click', () => {
@@ -151,9 +199,12 @@ contentBtn.addEventListener('click', () => {
 })
 
 addTaskBtn.addEventListener('click', () => {
-    if(taskTitle.value.length > 1){
-        createNewTask(taskTitle.value,taskList);
+    if(taskTitle.value.length > 1 && !manager.getProject(contentTitle.textContent).getTask(taskTitle.value)){
+        createNewTask(taskTitle.value);
         toggleElements(taskContainer, contentBtn);
+    }
+    else {
+        alert("Please Choose Another Name. Task Already Exists")
     }
 })
 
@@ -166,9 +217,12 @@ sidebarBtn.addEventListener('click', () => {
 })
 
 addProjectBtn.addEventListener('click', () => {
-    if(projectTitle.value.length > 1) {
-        createNewProject(projectTitle.value, projectList, true);
+    if(projectTitle.value.length > 1 && !manager.getProject(projectTitle.value)) {
+        createNewProject(projectTitle.value);
         toggleElements(projectContainer,sidebarBtn);
+    }
+    else {
+        alert("Please Choose Another Name. Project Already Exists")
     }
 })
 
@@ -177,24 +231,5 @@ cancelProjectBtn.addEventListener('click', () => {
 })
 
 //Initial Site Settings
-createNewProject("Inbox", homeList, false)
-createNewProject("Today", homeList, false)
-createNewProject("This Week", homeList, false)
-createNewProject("Default", projectList, true)
-
-if(manager.getProject(contentTitle.textContent)) {
-    console.log("Success!")
-}
-else {
-    console.log("Failed!")
-}
-
-const storageM = new Storage()
-
-storageM.saveProjectList(new ProjectManager())
-
-storageM.addProject(new Project("ayoo"))
-storageM.addProject(new Project("yessir"))
-storageM.deleteProject("ayoo")
-storageM.addTask("yessir", new Task("Me Drink", manager.getProject("yessir")))
-console.log(storageM.getProjectList())
+createTodoList()
+createTasks(manager.getProject("Inbox"))

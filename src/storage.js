@@ -29,14 +29,14 @@ export default class Storage {
     }
 
     addTask(projectName, task) {
-    const projectList = this.getProjectList()
-    projectList.getProject(projectName).addTask(task)
-    this.saveProjectList(projectList)
+        const projectList = this.getProjectList()
+        projectList.getProject(projectName).addTask(task)
+        this.saveProjectList(projectList)
     }
     
     deleteTask(projectName, taskName) {
-    const projectList = this.getProjectList()
-    projectList.getProject(projectName).deleteTask(taskName)
-    this.saveTodoList(projectList)
+        const projectList = this.getProjectList()
+        projectList.getProject(projectName).removeTask(taskName)
+        this.saveTodoList(projectList)
     }
 }
